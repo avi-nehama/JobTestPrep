@@ -3,7 +3,8 @@ from fastapi.responses import PlainTextResponse
 import logging
 import os
 
-from .persistance import FilePayloadStorage, StorageError
+from .persistance import StorageError
+from .config import get_storage_backend
 
 # Minimal, production-friendly logging setup
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -16,8 +17,13 @@ logger = logging.getLogger("app")
 
 app = FastAPI()
 
-# Initialize the payload storage
-payload_storage = FilePayloadStorage()
+# Initialize the payload storage using configuration
+try:
+    payload_storage = get_storage_backend()
+    logger.info(f"Storage backend initialized: {type(payload_storage).__name__}")
+except Exception as error:
+    logger.error(f"Failed to initialize storage backend: {error}")
+    raise
 
 @app.get("/", status_code=200, response_class=PlainTextResponse)
 def read_root():
