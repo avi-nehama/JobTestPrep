@@ -28,7 +28,7 @@ def get_storage_backend() -> PayloadStorage:
             prefix=prefix,
         )
     elif storage_type == "file":
-        data_directory = os.getenv("DATA_DIRECTORY", "/code/data")
+        data_directory = os.getenv("DATA_DIRECTORY", "./data")
         return FilePayloadStorage(data_directory=data_directory)
     else:
         raise ValueError(f"Unsupported storage type: {storage_type}")

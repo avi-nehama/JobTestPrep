@@ -35,6 +35,9 @@ def read_root():
 async def store_payload(payload: dict):
     """Accepts arbitrary JSON and stores it using the configured storage backend."""
     try:
+        # Reject empty JSON objects
+        if not payload:
+            raise HTTPException(status_code=400, detail="Empty JSON body is not allowed")
         logger.info("storing payload")
         result = await payload_storage.store(payload)
         logger.info("payload stored successfully")

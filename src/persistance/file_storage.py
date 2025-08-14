@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class FilePayloadStorage(PayloadStorage):
     """File-based implementation of payload storage."""
     
-    def __init__(self, data_directory: str = "/code/data"):
+    def __init__(self, data_directory: str):
         """
         Initialize file-based storage.
         
