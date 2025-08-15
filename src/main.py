@@ -3,6 +3,7 @@ from fastapi.responses import PlainTextResponse
 import logging
 import os
 
+from .security.sanitizer import sanitize_json, remove_dollar_from_keys
 from .persistance import StorageError
 from .config import get_storage_backend
 
@@ -31,17 +32,21 @@ def read_root():
     return "200OK"
 
 
-@app.post("/store", status_code=201)
+@app.post("/payloads", status_code=201)
 async def store_payload(payload: dict):
     """Accepts arbitrary JSON and stores it using the configured storage backend."""
     try:
         # Reject empty JSON objects
         if not payload:
             raise HTTPException(status_code=400, detail="Empty JSON body is not allowed")
+        
+        payload = remove_dollar_from_keys(payload)
+        sanitized_payload = sanitize_json(payload)
+        
         logger.info("storing payload")
-        result = await payload_storage.store(payload)
+        result = await payload_storage.store(sanitized_payload)
         logger.info("payload stored successfully")
         return result
     except StorageError as error:
-        logger.exception("failed to store payload")
+        logger.exception("failed to process payload")
         raise HTTPException(status_code=500, detail=str(error))
